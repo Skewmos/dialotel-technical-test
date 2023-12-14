@@ -1,0 +1,84 @@
+version: '3.9'
+
+networks:
+  dialotel_app:
+    driver: bridge
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: php.dockerfile
+    container_name: dialotel-app
+    volumes:
+      - ./app:/app
+      - ./php/php.ini:/usr/local/etc/php/conf.d/docker-php-memlimit.ini
+    environment:
+      - CADDY_DEBUG=debug
+      - DEBUG=debug
+      - FRANKENPHP_CONFIG="worker ./public/index.php"
+      - APP_RUNTIME=Runtime\FrankenPhpSymfony\Runtime
+      - SERVER_NAME=:${APP_PORT}
+    ports:
+      - ${APP_PORT}:${APP_PORT}
+    depends_on:
+      db_server:
+        condition: service_started
+    networks:
+      - dialotel_app
+
+  composer:
+    image: composer:latest
+    container_name: adialotel-app-composer
+    volumes:
+      - ./app:/app
+    working_dir: /app
+    networks:
+      - dialotel_app
+
+  npm:
+    image: node:current-alpine
+    container_name: dialotel-app-npm
+    volumes:
+      - ./app:/app
+    working_dir: /app
+    entrypoint: [ 'npm' ]
+    networks:
+      - dialotel_app
+
+  db_server:
+    image: mariadb:10.5.9
+    container_name: dialotel-app-database
+    command: ['mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci']
+    environment:
+      MYSQL_ROOT_PASSWORD: '${MYSQL_ROOT_PASS}'
+      MYSQL_DATABASE: '${MYSQL_DB}'
+    volumes:
+      - ./db_data:/var/lib/mysql
+    healthcheck:
+      test: mysqladmin ping -h 127.0.0.1 -u root --password=$$MYSQL_ROOT_PASSWORD
+      interval: 6s
+      retries: 5
+    networks:
+      - dialotel_app
+
+  db_admin:
+    image: phpmyadmin/phpmyadmin:5
+    container_name: dialotel-app-database-admin
+    ports:
+      - '${APP_DB_ADMIN_PORT}:80'
+    environment:
+      PMA_HOST: db_server
+    depends_on:
+      db_server:
+        condition: service_healthy
+    networks:
+      - dialotel_app
+
+  redis:
+    image: redis
+    container_name: dialotel-app-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - dialotel_app
