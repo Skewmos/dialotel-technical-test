@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %} Propositions {% endblock %}
+
+{% block body %}
+    <div class="container">
+
+            {% for propositionId, details in proposals %}
+                <div class="row mb-3">
+                    <div class="col">
+                        <h5>Proposition: {{ propositionId }}</h5>
+                    </div>
+                </div>
+
+                {% for detail in details %}
+                    <div class="row mb-2">
+                        <div class="col-md-4">
+                            <strong>Titre:</strong> {{ detail.prestation.title }}
+                        </div>
+                        <div class="col-md-4">
+                            <strong>Description:</strong> {{ detail.prestation.description }}
+                        </div>
+                        <div class="col-md-4">
+                            <strong>Prestataire:</strong> {{ detail.provider.email }}
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-md-6">
+                            <form method="post" action="/proposal/handle" class="d-inline">
+                                <input type="hidden" name="id" value="{{ detail.id }}">
+                                <input type="hidden" name="action" value="accept">
+                                <button type="submit" class="btn btn-success">Accepter</button>
+                            </form>
+                            <form method="post" action="/proposal/handle" class="d-inline">
+                                <input type="hidden" name="id" value="{{ detail.id }}">
+                                <input type="hidden" name="action" value="refuse">
+                                <button type="submit" class="btn btn-danger">Refuse</button>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="row">
+                    <div class="col">
+                        <p>Aucune proposition trouvée.</p>
+                    </div>
+                </div>
+            {% endfor %}
+    </div>
+{% endblock %}

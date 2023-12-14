@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Prestation{% endblock %}
+
+{% block body %}
+    <h1>Prestation</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Title</th>
+                <td>{{ prestation.title }}</td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>{{ prestation.description }}</td>
+            </tr>
+            <tr>
+                <th>Price</th>
+                <td>{{ prestation.price }}</td>
+            </tr>
+            <tr>
+                <th>Created_at</th>
+                <td>{{ prestation.createdAt ? prestation.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Updated_at</th>
+                <td>{{ prestation.updatedAt ? prestation.updatedAt|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+        </tbody>
+    </table>
+    {% if prestation.ownerId == app.user %}
+        <a href="{{ path('app_prestation_edit', {'id': prestation.id}) }}">edit</a>
+        {{ include('prestation/_delete_form.html.twig') }}
+    {% else  %}
+        <form id="propositionForm" method="post" action="/proposal/new">
+            <input type="hidden" name="id" id="prestation" value={{ prestation.id }}>
+            <button type="submit" class="btn btn-secondary">Faire une proposition</button>
+        </form>
+    {% endif %}
+    <a href="{{ path('app_prestation_index') }}">back to list</a>
+
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <h3>Les dernières prestations mise en ligne</h3>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Préstation</th>
+                    <th>Description</th>
+                    <th>Prix</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for prestation in the_latest_services_posted_online %}
+                    <tr>
+                        <td>{{ prestation.title }}</td>
+                        <td>{{ prestation.description }}</td>
+                        <td>{{ prestation.price }}</td>
+                        <td>
+                            <a href="{{ path('app_prestation_show', {'id': prestation.id}) }}" class="btn btn-info">Voir</a>
+                            {% if prestation.ownerId == app.user %}
+                                <a href="{{ path('app_prestation_edit', {'id': prestation.id}) }}" class="btn btn-warning">edit</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="7">no records found</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
